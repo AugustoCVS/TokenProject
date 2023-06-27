@@ -1,0 +1,62 @@
+/* Estilo do header */
+.headerTokenMarket {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px;
+    border-bottom: 1px solid;
+    width: 90%;
+    margin: 0 auto;
+  }
+
+  .headerTokenMarket a{
+    text-decoration: none;
+    color: black
+  }
+
+  /* Estilo do formulário de cadastro */
+  .container {
+    padding: 2rem;
+  }
+  
+  #formRegisterUser {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    width: 30%;
+    background-color: whitesmoke;
+    padding: 2rem;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  #inputName,
+  #inputEmail,
+  #inputPassword,
+  #inputBalance {
+    height: 25px;
+    border: 1px solid black;
+    padding-left: 5px;
+    width: 100%;
+  }
+  
+  button[type="submit"] {
+    margin-top: 10px;
+  }
+
+/* Token Market */
+
+.tokenList{
+    padding: 3rem;
+    display: flex;
+    float: left;
+    gap: 100px
+}
+
+.tokenOption{
+    background-color: whitesmoke;
+    padding: 1rem;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
