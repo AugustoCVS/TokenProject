@@ -14,17 +14,26 @@
     color: black
   }
 
+  /* section login e resgister */
+
+  .sectionLoginRegister{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding-left: 10rem;
+  }
+
   /* Estilo do formulário de cadastro */
-  .container {
+  .divRegister{
     padding: 2rem;
   }
   
-  #formRegisterUser {
+  .formRegisterUser {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 30px;
-    width: 30%;
+    width: 60%;
     background-color: whitesmoke;
     padding: 2rem;
     border-radius: 5px;

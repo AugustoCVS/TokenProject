@@ -10,17 +10,26 @@
     <header class="headerTokenMarket">
         <h1><a href="./tokenMarket.html">Token Market</a></h1>
     </header>
-    <div class="container">
-        <h3>Cadastro de Usuário</h2>
-        <form id="formRegisterUser">
-          <input type="text" id="inputName" name="nome" placeholder="Nome">
-          <input type="email" id="inputEmail" name="email" placeholder="Email">
-          <input type="password" id="inputPassword" name="senha" placeholder="Senha">
-          <input type="number" id="inputBalance" name="saldo" step="0.01" placeholder="Saldo inicial">
-    
-          <button type="submit" id="btnRegisterUser">Cadastrar</button>
-        </form>
-      </div>
+    <section class="sectionLoginRegister">
+        <div class="divRegister">
+            <form class="formRegisterUser">
+                <h3>Cadastro de Usuário</h2>
+                    <input type="text" id="inputName" name="nome" placeholder="Nome">
+                    <input type="email" id="inputEmail" name="email" placeholder="Email">
+                    <input type="password" id="inputPassword" name="senha" placeholder="Senha">
+                    <input type="number" id="inputBalance" name="saldo" step="0.01" placeholder="Saldo inicial">
+                    <button type="submit" id="btnRegisterUser">Cadastrar</button>
+            </form>
+          </div>
+          <div class="divRegister">
+            <form class="formRegisterUser">
+                <h3>Login</h2>
+                    <input type="email" id="inputEmail" name="email" placeholder="Email">
+                    <input type="password" id="inputPassword" name="senha" placeholder="Senha">
+                    <button type="submit" id="btnLoginUser">Login</button>
+            </form>
+          </div>
+    </section>
       <script type="module" src="../js/app.js"></script>
   </body>
 </html>
