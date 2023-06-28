@@ -71,30 +71,6 @@
       "price": 99,
       "amount": 43,
       "id": 7
-    },
-    {
-      "title": "Token",
-      "price": 77,
-      "amount": 74,
-      "id": 8
-    },
-    {
-      "title": "Token",
-      "price": 43,
-      "amount": 10,
-      "id": 9
-    },
-    {
-      "title": "Token",
-      "price": 92,
-      "amount": 40,
-      "id": 10
-    },
-    {
-      "title": "Token",
-      "price": 45,
-      "amount": 84,
-      "id": 11
     }
   ]
 }
