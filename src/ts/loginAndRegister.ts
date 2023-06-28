@@ -13,7 +13,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnLogOut = document.getElementById("btnLogOut") as HTMLButtonElement;
 
   const userStatus = localStorage.getItem("logado")
-  const userId = localStorage.getItem('userId')
+
+  function createHeaderTitle(){
+    const tokenMarketTitle = document.getElementById("tokenMarketTitle") as HTMLElement;
+    if(userStatus === 'true'){
+      tokenMarketTitle.innerHTML = '<a href="./tokenMarket.html">Token Market</a>'
+    }else{
+      tokenMarketTitle.innerHTML = 'Token Market'
+    }
+  }
 
   async function acessDataFromApi(apiKey: string){
     return await fetch(apiKey)
@@ -49,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   }
 
-  function saveUserBalanceToLocalStorage(id: number) {
+  function saveUserIdToLocalStorage(id: number) {
     localStorage.setItem('userId', id.toString());
   }
 
@@ -61,15 +69,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function userLogOUt(){
     location.reload()
     localStorage.setItem('logado', 'false');
-  }
-
-  function createHeaderTitle(){
-    const tokenMarketTitle = document.getElementById("tokenMarketTitle") as HTMLElement;
-    if(userStatus === 'true'){
-      tokenMarketTitle.innerHTML = '<a href="./tokenMarket.html">Token Market</a>'
-    }else{
-      tokenMarketTitle.innerHTML = 'Token Market'
-    }
   }
 
   async function createDivUserInfo(): Promise<void> {
@@ -110,8 +109,8 @@ document.addEventListener("DOMContentLoaded", () => {
       .then((validate: boolean) => {
         if (!validate) {
           getUserIdFromData(data.email)
-            .then((balance: number) => {
-              saveUserBalanceToLocalStorage(balance);
+            .then((id: number) => {
+              saveUserIdToLocalStorage(id);
             })
           saveUserEntry()
         }

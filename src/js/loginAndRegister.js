@@ -18,7 +18,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnLoginUser = document.getElementById("btnLoginUser");
     const btnLogOut = document.getElementById("btnLogOut");
     const userStatus = localStorage.getItem("logado");
-    const userId = localStorage.getItem('userId');
+    function createHeaderTitle() {
+        const tokenMarketTitle = document.getElementById("tokenMarketTitle");
+        if (userStatus === 'true') {
+            tokenMarketTitle.innerHTML = '<a href="./tokenMarket.html">Token Market</a>';
+        }
+        else {
+            tokenMarketTitle.innerHTML = 'Token Market';
+        }
+    }
     function acessDataFromApi(apiKey) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield fetch(apiKey)
@@ -54,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-    function saveUserBalanceToLocalStorage(id) {
+    function saveUserIdToLocalStorage(id) {
         localStorage.setItem('userId', id.toString());
     }
     function saveUserEntry() {
@@ -64,15 +72,6 @@ document.addEventListener("DOMContentLoaded", () => {
     function userLogOUt() {
         location.reload();
         localStorage.setItem('logado', 'false');
-    }
-    function createHeaderTitle() {
-        const tokenMarketTitle = document.getElementById("tokenMarketTitle");
-        if (userStatus === 'true') {
-            tokenMarketTitle.innerHTML = '<a href="./tokenMarket.html">Token Market</a>';
-        }
-        else {
-            tokenMarketTitle.innerHTML = 'Token Market';
-        }
     }
     function createDivUserInfo() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -113,8 +112,8 @@ document.addEventListener("DOMContentLoaded", () => {
             .then((validate) => {
             if (!validate) {
                 getUserIdFromData(data.email)
-                    .then((balance) => {
-                    saveUserBalanceToLocalStorage(balance);
+                    .then((id) => {
+                    saveUserIdToLocalStorage(id);
                 });
                 saveUserEntry();
             }
