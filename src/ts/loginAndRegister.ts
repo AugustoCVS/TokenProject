@@ -12,9 +12,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnLoginUser = document.getElementById("btnLoginUser") as HTMLButtonElement;
   const btnLogOut = document.getElementById("btnLogOut") as HTMLButtonElement;
 
-  async function validateIfUserDataExistis(email: string): Promise<boolean> {
-    return await fetch("http://localhost:3000/users")
+  const userStatus = localStorage.getItem("logado")
+  const userId = localStorage.getItem('userId')
+
+  async function acessDataFromApi(apiKey: string){
+    return await fetch(apiKey)
       .then((response: Response) => response.json())
+  }
+
+  async function validateIfUserDataExistis(email: string): Promise<boolean> {
+    return acessDataFromApi("http://localhost:3000/users")
       .then((lista_de_usuarios: any[]) => {
         for (let i in lista_de_usuarios) {
           if (email === lista_de_usuarios[i].email) {
@@ -42,25 +49,56 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   }
 
-  function saveUserBalanceToLocalStorage(balance: number) {
-    localStorage.setItem('userBalance', balance.toString());
+  function saveUserBalanceToLocalStorage(id: number) {
+    localStorage.setItem('userId', id.toString());
   }
 
   function saveUserEntry() {
+    location.reload()
     localStorage.setItem('logado', 'true');
   }
 
   function userLogOUt(){
+    location.reload()
     localStorage.setItem('logado', 'false');
   }
+
+  function createHeaderTitle(){
+    const tokenMarketTitle = document.getElementById("tokenMarketTitle") as HTMLElement;
+    if(userStatus === 'true'){
+      tokenMarketTitle.innerHTML = '<a href="./tokenMarket.html">Token Market</a>'
+    }else{
+      tokenMarketTitle.innerHTML = 'Token Market'
+    }
+  }
+
+  async function createDivUserInfo(): Promise<void> {
+    const userInfoFromApi = document.getElementById('userInfoFromApi') as HTMLDivElement;
+    const userId = localStorage.getItem('userId');
   
-  async function getUserBalanceFromData(email: string): Promise<number> {
-    return await fetch("http://localhost:3000/users")
-      .then((response: Response) => response.json())
+    if(userStatus === 'true'){
+        if (userId) {
+          const response = await fetch(`http://localhost:3000/users/${userId}`);
+          const userData = await response.json();
+      
+          const name = userData.nome;
+          const balance = userData.saldoInicial;
+      
+          userInfoFromApi.innerText = `Nome: ${name} | Saldo: ${balance}`;
+        } else {
+        throw new Error("Usuário não encontrado");
+      }
+    }else{
+      userInfoFromApi.innerText = ``;
+    }
+  }
+  
+  async function getUserIdFromData(email: string): Promise<number> {
+    return acessDataFromApi("http://localhost:3000/users")
       .then((lista_de_usuarios: any[]) => {
         for (let i in lista_de_usuarios) {
           if (email === lista_de_usuarios[i].email) {
-            return Number(lista_de_usuarios[i].saldoInicial);
+            return Number(lista_de_usuarios[i].id);
           }
         }
         throw new Error("Usuário não encontrado");
@@ -71,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
     validateIfUserDataExistis(data.email)
       .then((validate: boolean) => {
         if (!validate) {
-          getUserBalanceFromData(data.email)
+          getUserIdFromData(data.email)
             .then((balance: number) => {
               saveUserBalanceToLocalStorage(balance);
             })
@@ -103,6 +141,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     userLogin(userLoginData);
   }
+
+
+  createDivUserInfo();
+  setInterval(createDivUserInfo, 5000);
+  createHeaderTitle()
 
   btnRegisterUser.addEventListener('click', handleRegisterClick);
   btnLoginUser.addEventListener('click', handleLoginClick);

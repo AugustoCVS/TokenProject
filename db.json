@@ -11,18 +11,25 @@
       "nome": "Augusto",
       "email": "teste@gmail.com",
       "senha": "123",
-      "saldoInicial": "1000",
+      "saldoInicial": "3000",
       "id": 2
     },
     {
       "nome": "Augusto",
       "email": "teste1@gmail.com",
       "senha": "123",
-      "saldoInicial": 1100,
+      "saldoInicial": 111,
       "id": 3
+    },
+    {
+      "nome": "Lala",
+      "email": "lala@gmail.com",
+      "senha": "123",
+      "saldoInicial": 7000,
+      "id": 4
     }
   ],
-  "tokens":[
+  "tokens": [
     {
       "id": 1,
       "title": "token 1",

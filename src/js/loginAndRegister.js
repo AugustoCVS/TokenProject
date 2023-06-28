@@ -17,10 +17,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const inputLoginPassword = document.getElementById("inputLoginPassword");
     const btnLoginUser = document.getElementById("btnLoginUser");
     const btnLogOut = document.getElementById("btnLogOut");
+    const userStatus = localStorage.getItem("logado");
+    const userId = localStorage.getItem('userId');
+    function acessDataFromApi(apiKey) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield fetch(apiKey)
+                .then((response) => response.json());
+        });
+    }
     function validateIfUserDataExistis(email) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield fetch("http://localhost:3000/users")
-                .then((response) => response.json())
+            return acessDataFromApi("http://localhost:3000/users")
                 .then((lista_de_usuarios) => {
                 for (let i in lista_de_usuarios) {
                     if (email === lista_de_usuarios[i].email) {
@@ -47,23 +54,54 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-    function saveUserBalanceToLocalStorage(balance) {
-        localStorage.setItem('userBalance', balance.toString());
+    function saveUserBalanceToLocalStorage(id) {
+        localStorage.setItem('userId', id.toString());
     }
     function saveUserEntry() {
+        location.reload();
         localStorage.setItem('logado', 'true');
     }
     function userLogOUt() {
+        location.reload();
         localStorage.setItem('logado', 'false');
     }
-    function getUserBalanceFromData(email) {
+    function createHeaderTitle() {
+        const tokenMarketTitle = document.getElementById("tokenMarketTitle");
+        if (userStatus === 'true') {
+            tokenMarketTitle.innerHTML = '<a href="./tokenMarket.html">Token Market</a>';
+        }
+        else {
+            tokenMarketTitle.innerHTML = 'Token Market';
+        }
+    }
+    function createDivUserInfo() {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield fetch("http://localhost:3000/users")
-                .then((response) => response.json())
+            const userInfoFromApi = document.getElementById('userInfoFromApi');
+            const userId = localStorage.getItem('userId');
+            if (userStatus === 'true') {
+                if (userId) {
+                    const response = yield fetch(`http://localhost:3000/users/${userId}`);
+                    const userData = yield response.json();
+                    const name = userData.nome;
+                    const balance = userData.saldoInicial;
+                    userInfoFromApi.innerText = `Nome: ${name} | Saldo: ${balance}`;
+                }
+                else {
+                    throw new Error("Usuário não encontrado");
+                }
+            }
+            else {
+                userInfoFromApi.innerText = ``;
+            }
+        });
+    }
+    function getUserIdFromData(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return acessDataFromApi("http://localhost:3000/users")
                 .then((lista_de_usuarios) => {
                 for (let i in lista_de_usuarios) {
                     if (email === lista_de_usuarios[i].email) {
-                        return Number(lista_de_usuarios[i].saldoInicial);
+                        return Number(lista_de_usuarios[i].id);
                     }
                 }
                 throw new Error("Usuário não encontrado");
@@ -74,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
         validateIfUserDataExistis(data.email)
             .then((validate) => {
             if (!validate) {
-                getUserBalanceFromData(data.email)
+                getUserIdFromData(data.email)
                     .then((balance) => {
                     saveUserBalanceToLocalStorage(balance);
                 });
@@ -100,6 +138,9 @@ document.addEventListener("DOMContentLoaded", () => {
         };
         userLogin(userLoginData);
     }
+    createDivUserInfo();
+    setInterval(createDivUserInfo, 5000);
+    createHeaderTitle();
     btnRegisterUser.addEventListener('click', handleRegisterClick);
     btnLoginUser.addEventListener('click', handleLoginClick);
     btnLogOut.addEventListener('click', userLogOUt);
