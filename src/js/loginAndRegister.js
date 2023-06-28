@@ -20,8 +20,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const userStatus = localStorage.getItem("logado");
     function createHeaderTitle() {
         const tokenMarketTitle = document.getElementById("tokenMarketTitle");
+        const userMarketReport = document.getElementById("userMarketReport");
         if (userStatus === 'true') {
             tokenMarketTitle.innerHTML = '<a href="./tokenMarket.html">Token Market</a>';
+            userMarketReport.innerHTML = '<a href="./relatorio.html">Relatorios</a>';
         }
         else {
             tokenMarketTitle.innerHTML = 'Token Market';

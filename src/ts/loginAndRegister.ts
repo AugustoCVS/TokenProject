@@ -16,8 +16,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function createHeaderTitle(){
     const tokenMarketTitle = document.getElementById("tokenMarketTitle") as HTMLElement;
+    const userMarketReport = document.getElementById("userMarketReport") as HTMLElement;
     if(userStatus === 'true'){
       tokenMarketTitle.innerHTML = '<a href="./tokenMarket.html">Token Market</a>'
+      userMarketReport.innerHTML = '<a href="./relatorio.html">Relatorios</a>'
     }else{
       tokenMarketTitle.innerHTML = 'Token Market'
     }

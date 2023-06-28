@@ -21,24 +21,23 @@ class TokenClass {
 }
 document.addEventListener("DOMContentLoaded", () => {
     function createToken() {
-        const token = new TokenClass('Token');
+        const token = new TokenClass("Token");
         token.generateRandomValues();
         fetch("http://localhost:3000/tokens", {
             method: "POST",
             headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
+                Accept: "application/json",
+                "Content-Type": "application/json",
             },
-            body: JSON.stringify(token)
-        })
-            .catch((error) => {
+            body: JSON.stringify(token),
+        }).catch((error) => {
             console.error(error);
         });
     }
     function createTokenListFromApi() {
-        const tokenList = document.getElementsByClassName('tokenList')[0];
+        const tokenList = document.getElementsByClassName("tokenList")[0];
         fetch("http://localhost:3000/tokens")
-            .then(response => response.json())
+            .then((response) => response.json())
             .then((lista_de_tokens) => {
             tokenList.innerHTML = "";
             for (let i in lista_de_tokens) {
@@ -56,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
     function saveTokenIdToLocalStorage(id) {
-        localStorage.setItem('tokenId', id.toString());
+        localStorage.setItem("tokenId", id.toString());
     }
     function handleBuyTokenClick(event) {
         const btnBuyToken = event.target;
@@ -65,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
             saveTokenIdToLocalStorage(Number(tokenId));
         }
         else {
-            console.error('Token ID not found');
+            console.error("Token ID not found");
         }
         getAmountBought(event);
         updateUserBalance(event);
@@ -92,10 +91,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 yield fetch(`http://localhost:3000/tokens/${tokenId}`, {
                     method: "PUT",
                     headers: {
-                        "Accept": "application/json",
-                        "Content-Type": "application/json"
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
                     },
-                    body: JSON.stringify(tokenData)
+                    body: JSON.stringify(tokenData),
                 });
                 console.log(amount);
             }
@@ -103,7 +102,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     function updateUserBalance(event) {
         return __awaiter(this, void 0, void 0, function* () {
-            const userId = localStorage.getItem('userId');
+            const userId = localStorage.getItem("userId");
             const btnConfirm = event.target;
             const tokenOption = btnConfirm.closest(".tokenOption");
             const quantityToBuy = tokenOption.querySelector(".quantityToBuy");
@@ -116,19 +115,41 @@ document.addEventListener("DOMContentLoaded", () => {
                 let tokenAmount = Number(quantityToBuy.value);
                 let tokenPrice = Number(tokenData.price);
                 let userBalance = Number(userData.saldoInicial);
-                userBalance = userBalance - (tokenAmount * tokenPrice);
+                userBalance = userBalance - tokenAmount * tokenPrice;
                 userData.saldoInicial = userBalance;
                 yield fetch(`http://localhost:3000/users/${userId}`, {
                     method: "PUT",
                     headers: {
-                        "Accept": "application/json",
-                        "Content-Type": "application/json"
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
                     },
-                    body: JSON.stringify(userData)
+                    body: JSON.stringify(userData),
                 });
             }
         });
     }
+    function createUserMarketReport() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const sectionMarketReport = document.getElementById("sectionMarketReport");
+            const response = yield fetch("http://localhost:3000/relatorio");
+            const report_list = yield response.json();
+            sectionMarketReport.innerHTML = "";
+            for (const report of report_list) {
+                const reportHTML = `
+            <div class="report">
+              <h3 class="report-title">Relatório de Compras</h3>
+              <div class="report-info">
+                <p><span class="label">Token:</span> <span class="value">${report.title}</span></p>
+                <p><span class="label">Preço:</span> <span class="value price">R$${report.price},00</span></p>
+                <p><span class="label">Quantidade:</span> <span class="value amount">${report.amount}</span></p>
+              </div>
+            </div>
+          `;
+                sectionMarketReport.insertAdjacentHTML("beforeend", reportHTML);
+            }
+        });
+    }
+    window.addEventListener("load", createUserMarketReport);
     setInterval(createToken, 10 * 1000000);
     window.addEventListener("load", createTokenListFromApi);
     setInterval(attachBuyTokenListeners, 10 * 10);
