@@ -137,6 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
         userLogin(userLoginData);
     }
+    ;
     createDivUserInfo();
     setInterval(createDivUserInfo, 5000);
     createHeaderTitle();

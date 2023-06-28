@@ -1,5 +1,4 @@
 "use strict";
-// import { TokenClass } from "./classes/tokenClass";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -49,11 +48,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 <h3>${lista_de_tokens[i].title}</h3>
                 <p>R$: ${lista_de_tokens[i].price},00</p>
                 <p>Quantidade: ${lista_de_tokens[i].amount}</p>
+                <input name="inputBuy" class="quantityToBuy"/>
                 <button class="btnBuyToken" data-id="${tokenId}">Comprar</button>
               </div>
             `;
             }
-            attachBuyTokenListeners();
         });
     }
     function saveTokenIdToLocalStorage(id) {
@@ -68,35 +67,69 @@ document.addEventListener("DOMContentLoaded", () => {
         else {
             console.error('Token ID not found');
         }
+        getAmountBought(event);
+        updateUserBalance(event);
     }
     function attachBuyTokenListeners() {
         const btnBuyTokens = document.querySelectorAll(".btnBuyToken");
         btnBuyTokens.forEach((btnBuyToken) => {
-            btnBuyToken.addEventListener("click", handleBuyTokenClick, { once: true });
+            btnBuyToken.addEventListener("click", handleBuyTokenClick);
         });
     }
-    function createTokenSelectedModal() {
+    function getAmountBought(event) {
         return __awaiter(this, void 0, void 0, function* () {
-            const modal = document.getElementById("modal");
-            const tokenId = localStorage.getItem('tokenId');
-            if (tokenId) {
+            const btnConfirm = event.target;
+            const tokenOption = btnConfirm.closest(".tokenOption");
+            const quantityToBuy = tokenOption.querySelector(".quantityToBuy");
+            const tokenId = btnConfirm.dataset.id;
+            if (tokenId && quantityToBuy) {
                 const response = yield fetch(`http://localhost:3000/tokens/${tokenId}`);
                 const tokenData = yield response.json();
-                const title = tokenData.title;
-                const price = tokenData.price;
-                const amount = tokenData.amount;
-                modal.innerHTML = `
-            <div class="modal-content">
-                <h3 id="modalTitle">${title}</h3>
-                <p id="modalPrice">R$${price},00</p>
-                <p id="modalAmount">Quantidade${amount}</p>
-                <input type="number" id="inputQuantity" placeholder="Quantidade">
-                <button id="btnConfirm">Confirmar</button>
-            </div>
-        `;
+                //const price = tokenData.price;
+                let amount = Number(tokenData.amount);
+                amount -= Number(quantityToBuy.value);
+                tokenData.amount = amount;
+                yield fetch(`http://localhost:3000/tokens/${tokenId}`, {
+                    method: "PUT",
+                    headers: {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(tokenData)
+                });
+                console.log(amount);
+            }
+        });
+    }
+    function updateUserBalance(event) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const userId = localStorage.getItem('userId');
+            const btnConfirm = event.target;
+            const tokenOption = btnConfirm.closest(".tokenOption");
+            const quantityToBuy = tokenOption.querySelector(".quantityToBuy");
+            const tokenId = btnConfirm.dataset.id;
+            if (userId) {
+                const userResponse = yield fetch(`http://localhost:3000/users/${userId}`);
+                const userData = yield userResponse.json();
+                const tokenResponse = yield fetch(`http://localhost:3000/tokens/${tokenId}`);
+                const tokenData = yield tokenResponse.json();
+                let tokenAmount = Number(quantityToBuy.value);
+                let tokenPrice = Number(tokenData.price);
+                let userBalance = Number(userData.saldoInicial);
+                userBalance = userBalance - (tokenAmount * tokenPrice);
+                userData.saldoInicial = userBalance;
+                yield fetch(`http://localhost:3000/users/${userId}`, {
+                    method: "PUT",
+                    headers: {
+                        "Accept": "application/json",
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(userData)
+                });
             }
         });
     }
     setInterval(createToken, 10 * 1000000);
-    setInterval(createTokenListFromApi, 10 * 10);
+    window.addEventListener("load", createTokenListFromApi);
+    setInterval(attachBuyTokenListeners, 10 * 10);
 });
