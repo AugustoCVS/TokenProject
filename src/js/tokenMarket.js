@@ -67,12 +67,35 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Token ID not found");
         }
         getAmountBought(event);
-        updateUserBalance(event);
     }
     function attachBuyTokenListeners() {
         const btnBuyTokens = document.querySelectorAll(".btnBuyToken");
         btnBuyTokens.forEach((btnBuyToken) => {
             btnBuyToken.addEventListener("click", handleBuyTokenClick);
+        });
+    }
+    function updateTokenAmount(tokenId, data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield fetch(`http://localhost:3000/tokens/${tokenId}`, {
+                method: "PUT",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+        });
+    }
+    function deleteToken(tokenId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield fetch(`http://localhost:3000/tokens/${tokenId}`, {
+                method: "DELETE",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({}),
+            });
         });
     }
     function getAmountBought(event) {
@@ -84,72 +107,76 @@ document.addEventListener("DOMContentLoaded", () => {
             if (tokenId && quantityToBuy) {
                 const response = yield fetch(`http://localhost:3000/tokens/${tokenId}`);
                 const tokenData = yield response.json();
-                //const price = tokenData.price;
                 let amount = Number(tokenData.amount);
-                amount -= Number(quantityToBuy.value);
+                const requestedQuantity = Number(quantityToBuy.value);
+                if (requestedQuantity <= 0) {
+                    alert("Quantidade inválida. Insira um valor maior que zero.");
+                    return;
+                }
+                if (requestedQuantity > amount) {
+                    alert("Impossível comprar. A quantidade desejada é maior do que a disponível.");
+                    return;
+                }
+                amount -= requestedQuantity;
                 tokenData.amount = amount;
-                yield fetch(`http://localhost:3000/tokens/${tokenId}`, {
-                    method: "PUT",
-                    headers: {
-                        Accept: "application/json",
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(tokenData),
-                });
+                if (amount <= 0) {
+                    yield deleteToken(tokenId);
+                }
+                else {
+                    yield updateTokenAmount(tokenId, tokenData);
+                    yield updateUserBalance(event, requestedQuantity);
+                }
                 console.log(amount);
             }
         });
     }
-    function updateUserBalance(event) {
+    function updateUserBalance(event, quantityBought) {
         return __awaiter(this, void 0, void 0, function* () {
             const userId = localStorage.getItem("userId");
             const btnConfirm = event.target;
             const tokenOption = btnConfirm.closest(".tokenOption");
             const quantityToBuy = tokenOption.querySelector(".quantityToBuy");
             const tokenId = btnConfirm.dataset.id;
-            if (userId) {
+            if (userId && quantityToBuy && tokenId) {
                 const userResponse = yield fetch(`http://localhost:3000/users/${userId}`);
                 const userData = yield userResponse.json();
                 const tokenResponse = yield fetch(`http://localhost:3000/tokens/${tokenId}`);
                 const tokenData = yield tokenResponse.json();
-                let tokenAmount = Number(quantityToBuy.value);
-                let tokenPrice = Number(tokenData.price);
+                const tokenTitle = tokenData.title;
+                const tokenPrice = Number(tokenData.price);
                 let userBalance = Number(userData.saldoInicial);
-                userBalance = userBalance - tokenAmount * tokenPrice;
-                userData.saldoInicial = userBalance;
-                yield fetch(`http://localhost:3000/users/${userId}`, {
-                    method: "PUT",
-                    headers: {
-                        Accept: "application/json",
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(userData),
-                });
+                userBalance -= quantityBought * tokenPrice;
+                if (userBalance < 0) {
+                    alert("Impossível realizar esta compra, saldo insuficiente");
+                    return;
+                }
+                else {
+                    userData.saldoInicial = userBalance;
+                    yield fetch(`http://localhost:3000/users/${userId}`, {
+                        method: "PUT",
+                        headers: {
+                            Accept: "application/json",
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(userData),
+                    });
+                    yield fetch("http://localhost:3000/relatorio", {
+                        method: "POST",
+                        headers: {
+                            Accept: "application/json",
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            idTokenReport: userId,
+                            title: tokenTitle,
+                            price: tokenPrice,
+                            amount: quantityBought
+                        })
+                    });
+                }
             }
         });
     }
-    function createUserMarketReport() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const sectionMarketReport = document.getElementById("sectionMarketReport");
-            const response = yield fetch("http://localhost:3000/relatorio");
-            const report_list = yield response.json();
-            sectionMarketReport.innerHTML = "";
-            for (const report of report_list) {
-                const reportHTML = `
-            <div class="report">
-              <h3 class="report-title">Relatório de Compras</h3>
-              <div class="report-info">
-                <p><span class="label">Token:</span> <span class="value">${report.title}</span></p>
-                <p><span class="label">Preço:</span> <span class="value price">R$${report.price},00</span></p>
-                <p><span class="label">Quantidade:</span> <span class="value amount">${report.amount}</span></p>
-              </div>
-            </div>
-          `;
-                sectionMarketReport.insertAdjacentHTML("beforeend", reportHTML);
-            }
-        });
-    }
-    window.addEventListener("load", createUserMarketReport);
     setInterval(createToken, 10 * 1000000);
     window.addEventListener("load", createTokenListFromApi);
     setInterval(attachBuyTokenListeners, 10 * 10);

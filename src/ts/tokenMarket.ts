@@ -72,7 +72,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     getAmountBought(event);
-    updateUserBalance(event);
   }
 
   function attachBuyTokenListeners() {
@@ -82,100 +81,119 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+
+async function updateTokenAmount(tokenId: string, data: any[]): Promise<Response> {
+    return await fetch(`http://localhost:3000/tokens/${tokenId}`, {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+  }
+  
+  async function deleteToken(tokenId: string): Promise<Response> {
+    return await fetch(`http://localhost:3000/tokens/${tokenId}`, {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({}),
+    });
+  }
+
   async function getAmountBought(event: Event): Promise<void> {
     const btnConfirm = event.target as HTMLButtonElement;
     const tokenOption = btnConfirm.closest(".tokenOption") as HTMLElement;
-    const quantityToBuy = tokenOption.querySelector(
-      ".quantityToBuy"
-    ) as HTMLInputElement;
+    const quantityToBuy = tokenOption.querySelector(".quantityToBuy") as HTMLInputElement;
     const tokenId = btnConfirm.dataset.id;
-
+  
     if (tokenId && quantityToBuy) {
       const response = await fetch(`http://localhost:3000/tokens/${tokenId}`);
       const tokenData = await response.json();
-
-      //const price = tokenData.price;
+  
       let amount = Number(tokenData.amount);
-
-      amount -= Number(quantityToBuy.value);
+  
+      const requestedQuantity = Number(quantityToBuy.value);
+  
+      if (requestedQuantity <= 0) {
+        alert("Quantidade inválida. Insira um valor maior que zero.");
+        return;
+      }
+  
+      if (requestedQuantity > amount) {
+        alert("Impossível comprar. A quantidade desejada é maior do que a disponível.");
+        return;
+      }
+  
+      amount -= requestedQuantity;
       tokenData.amount = amount;
-
-      await fetch(`http://localhost:3000/tokens/${tokenId}`, {
-        method: "PUT",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(tokenData),
-      });
-
+  
+      if (amount <= 0) {
+        await deleteToken(tokenId);
+      } else {
+        await updateTokenAmount(tokenId, tokenData);
+        await updateUserBalance(event, requestedQuantity);
+      }
+  
       console.log(amount);
     }
   }
 
-  async function updateUserBalance(event: Event): Promise<void> {
+  async function updateUserBalance(event: Event, quantityBought: number): Promise<void> {
     const userId = localStorage.getItem("userId");
     const btnConfirm = event.target as HTMLButtonElement;
     const tokenOption = btnConfirm.closest(".tokenOption") as HTMLElement;
-    const quantityToBuy = tokenOption.querySelector(
-      ".quantityToBuy"
-    ) as HTMLInputElement;
+    const quantityToBuy = tokenOption.querySelector(".quantityToBuy") as HTMLInputElement;
     const tokenId = btnConfirm.dataset.id;
-
-    if (userId) {
+  
+    if (userId && quantityToBuy && tokenId) {
       const userResponse = await fetch(`http://localhost:3000/users/${userId}`);
       const userData = await userResponse.json();
-
-      const tokenResponse = await fetch(
-        `http://localhost:3000/tokens/${tokenId}`
-      );
+  
+      const tokenResponse = await fetch(`http://localhost:3000/tokens/${tokenId}`);
       const tokenData = await tokenResponse.json();
-
-      let tokenAmount = Number(quantityToBuy.value);
-      let tokenPrice = Number(tokenData.price);
+        
+      const tokenTitle = tokenData.title
+      const tokenPrice = Number(tokenData.price);
       let userBalance = Number(userData.saldoInicial);
-      userBalance = userBalance - tokenAmount * tokenPrice;
+      userBalance -= quantityBought * tokenPrice;
+  
+      if (userBalance < 0) {
+        alert("Impossível realizar esta compra, saldo insuficiente");
+        return;
+      } else {
+        userData.saldoInicial = userBalance;
+  
+        await fetch(`http://localhost:3000/users/${userId}`, {
+          method: "PUT",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(userData),
+        });
 
-      userData.saldoInicial = userBalance;
-
-      await fetch(`http://localhost:3000/users/${userId}`, {
-        method: "PUT",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-      });
+        await fetch("http://localhost:3000/relatorio", {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                idTokenReport: userId,
+                title: tokenTitle,
+                price: tokenPrice,
+                amount: quantityBought
+            })
+        })
+      }
     }
   }
 
-  async function createUserMarketReport(): Promise<void> {
-    const sectionMarketReport = document.getElementById(
-      "sectionMarketReport"
-    ) as HTMLElement;
 
-    const response = await fetch("http://localhost:3000/relatorio");
-    const report_list = await response.json();
-
-    sectionMarketReport.innerHTML = "";
-
-    for (const report of report_list) {
-      const reportHTML = `
-            <div class="report">
-              <h3 class="report-title">Relatório de Compras</h3>
-              <div class="report-info">
-                <p><span class="label">Token:</span> <span class="value">${report.title}</span></p>
-                <p><span class="label">Preço:</span> <span class="value price">R$${report.price},00</span></p>
-                <p><span class="label">Quantidade:</span> <span class="value amount">${report.amount}</span></p>
-              </div>
-            </div>
-          `;
-
-      sectionMarketReport.insertAdjacentHTML("beforeend", reportHTML);
-    }
-  }
-
-  window.addEventListener("load", createUserMarketReport);
   setInterval(createToken, 10 * 1000000);
   window.addEventListener("load", createTokenListFromApi);
   setInterval(attachBuyTokenListeners, 10 * 10);
