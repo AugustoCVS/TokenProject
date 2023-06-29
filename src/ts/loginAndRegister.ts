@@ -145,7 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   createDivUserInfo();
   setInterval(createDivUserInfo, 5000);
-  createHeaderTitle()
+  createHeaderTitle();
 
   btnRegisterUser.addEventListener('click', handleRegisterClick);
   btnLoginUser.addEventListener('click', handleLoginClick);

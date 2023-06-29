@@ -20,8 +20,15 @@ class TokenClass {
     }
 }
 document.addEventListener("DOMContentLoaded", () => {
+    function generateRandomName() {
+        const adjectives = ["Red", "Blue", "Green", "Yellow", "Purple", "Orange", "Black", "White", "Silver", "Golden"];
+        const nouns = ["Coin", "Token", "Gem", "Diamond", "Star", "Crystal", "Jewel", "Artifact", "Charm", "Medallion"];
+        const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+        const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+        return `${randomAdjective} ${randomNoun}`;
+    }
     function createToken() {
-        const token = new TokenClass("Token");
+        const token = new TokenClass(generateRandomName());
         token.generateRandomValues();
         fetch("http://localhost:3000/tokens", {
             method: "POST",
@@ -177,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-    setInterval(createToken, 10 * 1000000);
+    setInterval(createToken, 10 * 10000);
     window.addEventListener("load", createTokenListFromApi);
     setInterval(attachBuyTokenListeners, 10 * 10);
 });
