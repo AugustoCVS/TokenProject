@@ -126,6 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
                 amount -= requestedQuantity;
                 tokenData.amount = amount;
+                tokenData.price = (tokenData.price * 1.05).toFixed(2);
                 if (amount <= 0) {
                     yield deleteToken(tokenId);
                 }
@@ -150,9 +151,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 const tokenResponse = yield fetch(`http://localhost:3000/tokens/${tokenId}`);
                 const tokenData = yield tokenResponse.json();
                 const tokenTitle = tokenData.title;
-                const tokenPrice = Number(tokenData.price);
+                let tokenPrice = Number(tokenData.price);
                 let userBalance = Number(userData.saldoInicial);
-                userBalance -= quantityBought * tokenPrice;
+                userBalance = parseFloat((userBalance - quantityBought * tokenPrice).toFixed(2));
                 if (userBalance < 0) {
                     alert("Impossível realizar esta compra, saldo insuficiente");
                     return;

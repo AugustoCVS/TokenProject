@@ -141,6 +141,7 @@ async function updateTokenAmount(tokenId: string, data: any[]): Promise<Response
   
       amount -= requestedQuantity;
       tokenData.amount = amount;
+      tokenData.price = (tokenData.price * 1.05).toFixed(2);
   
       if (amount <= 0) {
         await deleteToken(tokenId);
@@ -168,16 +169,16 @@ async function updateTokenAmount(tokenId: string, data: any[]): Promise<Response
       const tokenData = await tokenResponse.json();
         
       const tokenTitle = tokenData.title
-      const tokenPrice = Number(tokenData.price);
+      let tokenPrice = Number(tokenData.price);
       let userBalance = Number(userData.saldoInicial);
-      userBalance -= quantityBought * tokenPrice;
+      userBalance = parseFloat((userBalance - quantityBought * tokenPrice).toFixed(2));
   
       if (userBalance < 0) {
         alert("Impossível realizar esta compra, saldo insuficiente");
         return;
       } else {
         userData.saldoInicial = userBalance;
-  
+
         await fetch(`http://localhost:3000/users/${userId}`, {
           method: "PUT",
           headers: {
