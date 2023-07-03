@@ -185,7 +185,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-    setInterval(createToken, 10 * 10000);
+    setInterval(createToken, 10 * 100000);
     window.addEventListener("load", createTokenListFromApi);
     setInterval(attachBuyTokenListeners, 10 * 10);
 });

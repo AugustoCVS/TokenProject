@@ -197,7 +197,7 @@ async function updateTokenAmount(tokenId: string, data: any[]): Promise<Response
             body: JSON.stringify({
                 idTokenReport: userId,
                 title: tokenTitle,
-                price: tokenPrice,
+                price: tokenData.price,
                 amount: quantityBought
             })
         })
@@ -205,7 +205,7 @@ async function updateTokenAmount(tokenId: string, data: any[]): Promise<Response
     }
   }
 
-  setInterval(createToken, 10 * 10000);
+  setInterval(createToken, 10 * 100000);
   window.addEventListener("load", createTokenListFromApi);
   setInterval(attachBuyTokenListeners, 10 * 10);
 });

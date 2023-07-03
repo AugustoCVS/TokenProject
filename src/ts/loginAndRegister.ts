@@ -59,6 +59,19 @@ document.addEventListener("DOMContentLoaded", () => {
       });
   }
 
+  function handleRegisterClick(event: MouseEvent) {
+    event.preventDefault();
+
+    const userRegisterData: UserRegisterData = {
+      nome: inputName.value,
+      email: inputEmail.value,
+      senha: inputPassword.value,
+      saldoInicial: Number(inputBalance.value)
+    };
+
+    exportUserDataToApi(userRegisterData);
+  }
+
   function saveUserIdToLocalStorage(id: number) {
     localStorage.setItem('userId', id.toString());
   }
@@ -72,6 +85,19 @@ document.addEventListener("DOMContentLoaded", () => {
     location.reload()
     localStorage.setItem('logado', 'false');
   }
+
+  function userLogin(data: UserLoginData) {
+    validateIfUserDataExistis(data.email)
+      .then((validate: boolean) => {
+        if (!validate) {
+          getUserIdFromData(data.email)
+            .then((id: number) => {
+              saveUserIdToLocalStorage(id);
+            })
+          saveUserEntry()
+        }
+      });
+  }  
 
   async function createDivUserInfo(): Promise<void> {
     const userInfoFromApi = document.getElementById('userInfoFromApi') as HTMLDivElement;
@@ -104,32 +130,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         throw new Error("Usuário não encontrado");
       });
-  }
-  
-  function userLogin(data: UserLoginData) {
-    validateIfUserDataExistis(data.email)
-      .then((validate: boolean) => {
-        if (!validate) {
-          getUserIdFromData(data.email)
-            .then((id: number) => {
-              saveUserIdToLocalStorage(id);
-            })
-          saveUserEntry()
-        }
-      });
-  }  
-  
-  function handleRegisterClick(event: MouseEvent) {
-    event.preventDefault();
-
-    const userRegisterData: UserRegisterData = {
-      nome: inputName.value,
-      email: inputEmail.value,
-      senha: inputPassword.value,
-      saldoInicial: Number(inputBalance.value)
-    };
-
-    exportUserDataToApi(userRegisterData);
   }
 
   function handleLoginClick(e: MouseEvent) {
