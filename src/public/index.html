@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/style.css" type="text/css">
+    <title>Document</title>
+</head>
+<body>
+    <header class="headerTokenMarket">
+        <h1 id="tokenMarketTitle"></h1> 
+        <div id="userInfoFromApi"></div>
+        <div id="userMarketReport"></div>
+        <button id="btnLogOut">Sair</button>
+    </header>      
+    <section class="sectionLoginRegister">
+        <div class="divRegister">
+            <form class="formRegisterUser">
+                <h3>Cadastro de Usuário</h2>
+                    <input type="text" id="inputName" name="nome" placeholder="Nome">
+                    <input type="email" id="inputEmail" name="email" placeholder="Email">
+                    <input type="password" id="inputPassword" name="senha" placeholder="Senha">
+                    <input type="number" id="inputBalance" name="saldo" step="0.01" placeholder="Saldo inicial">
+                    <button type="submit" id="btnRegisterUser">Cadastrar</button>
+            </form>
+          </div>
+          <div class="divRegister">
+            <form class="formRegisterUser">
+                <h3>Login</h2>
+                    <input type="email" id="inputLoginEmail" name="email" placeholder="Email">
+                    <input type="password" id="inputLoginPassword" name="senha" placeholder="Senha">
+                    <button type="submit" id="btnLoginUser">Login</button>
+            </form>
+          </div>
+    </section>
+      <script type="module" src="../js/loginAndRegister.js"></script>
+      <script type="module" src="../js/tokenMarket.js" ></script>
+  </body>
+</html>
